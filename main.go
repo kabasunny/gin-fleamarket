@@ -27,6 +27,7 @@ func main() {
 	r.GET("/items/:id", itemController.FindById)
 	r.POST("/items", itemController.Create)
 	r.PUT("/items/:id", itemController.Update)
+	r.DELETE("/items/:id", itemController.Delete)
 	//以下は、サーバーを立ち上げ（以降、リクエストの待機、レスポンス送信行う）
 	r.Run("localhost:8080")
 }
