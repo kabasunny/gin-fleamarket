@@ -13,10 +13,10 @@ tmp_dir = "tmp"
   # Windows 環境では実行ファイルに .exe 拡張子が必要である
   
   # Windows 実行ファイルのパスに `.exe` 拡張子を追加
-  bin = "./tmp/main" 
+  bin = "./tmp/main.exe" 
   
   # Windows ビルドコマンドに `.exe` 拡張子を追加
-  cmd = "go build -o ./tmp/main ."
+  cmd = "go build -o ./tmp/main.exe ."
 
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
