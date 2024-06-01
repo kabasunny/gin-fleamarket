@@ -1,11 +1,23 @@
+# Webアプリケーションの設定ファイル
+# ginは、Go言語で書かれたHTTP Webフレームワークで、RESTful APIを構築するためによく使用され、この.ari.tomlファイルは、開発中のアプリケーションのビルドや実行に関連する様々な設定を定義している
+# 開発者がアプリケーションのビルドや実行をカスタマイズするために使用する
+
+
 root = "."
 testdata_dir = "testdata"
 tmp_dir = "tmp"
 
 [build]
   args_bin = []
-  bin = "./tmp/main"
-  cmd = "go build -o ./tmp/main ."
+
+  # Windows 環境では実行ファイルに .exe 拡張子が必要である
+  
+  # 実行ファイルのパスに `.exe` 拡張子を追加
+  bin = "./tmp/main.exe" 
+  
+  # ビルドコマンドに `.exe` 拡張子を追加
+  cmd = "go build -o ./tmp/main.exe ."
+
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
