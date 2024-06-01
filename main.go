@@ -2,7 +2,9 @@ package main
 
 import (
 	"gin-fleamarket/controllers"
-	"gin-fleamarket/models"
+	"gin-fleamarket/infra"
+
+	// "gin-fleamarket/models"
 	"gin-fleamarket/repositories"
 	"gin-fleamarket/services"
 
@@ -10,13 +12,18 @@ import (
 )
 
 func main() {
-	items := []models.Item{
-		{ID: 1, Name: "商品1", Price: 1000, Description: "説明1", SoldOut: false},
-		{ID: 2, Name: "商品2", Price: 2000, Description: "説明2", SoldOut: true},
-		{ID: 3, Name: "商品3", Price: 3000, Description: "説明3", SoldOut: false},
-	}
+	infra.Initialize()
+	db := infra.SetupDB()
 
-	itemRepository := repositories.NewItemMemoryRepository(items)
+	// items := []models.Item{
+	// 	{ID: 1, Name: "商品1", Price: 1000, Description: "説明1", SoldOut: false},
+	// 	{ID: 2, Name: "商品2", Price: 2000, Description: "説明2", SoldOut: true},
+	// 	{ID: 3, Name: "商品3", Price: 3000, Description: "説明3", SoldOut: false},
+	// }
+
+
+	// itemRepository := repositories.NewItemMemoryRepository(items)
+	itemRepository := repositories.NewItemRepository(db) //メモリからDBへ切替
 	itemService := services.NewItemService(itemRepository)
 	itemController := controllers.NewItemController(itemService)
 
