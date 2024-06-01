@@ -21,6 +21,7 @@ func main() {
 	// 	{ID: 3, Name: "商品3", Price: 3000, Description: "説明3", SoldOut: false},
 	// }
 
+
 	// itemRepository := repositories.NewItemMemoryRepository(items)
 	itemRepository := repositories.NewItemRepository(db) //メモリからDBへ切替
 	itemService := services.NewItemService(itemRepository)

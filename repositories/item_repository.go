@@ -44,6 +44,7 @@ func (r *ItemMemoryRepository) Create(newItem models.Item) (*models.Item, error)
 
 func (r *ItemMemoryRepository) Update(updateItem models.Item) (*models.Item, error) {
 	for i, v := range r.items {
+
 		if v.ID == updateItem.ID {
 			r.items[i] = updateItem
 			return &r.items[i], nil
@@ -52,10 +53,12 @@ func (r *ItemMemoryRepository) Update(updateItem models.Item) (*models.Item, err
 	return nil, errors.New("Unexpected error")
 }
 
-func (r *ItemMemoryRepository) Delete(itemId uint) error {
+
+func (r *ItemMemoryRepository) Delete(itemId uint) error{
 	for i, v := range r.items {
 		if v.ID == itemId {
-			r.items = append(r.items[:i], r.items[i+1:]...) //単純に削除する仕組みがない
+			r.items = append(r.items[:i], r.items[i+1:]... )//単純に削除する仕組みがない
+
 			return nil
 		}
 	}
@@ -119,3 +122,4 @@ func (r *ItemRepository) Update(updateItem models.Item) (*models.Item, error) {
 func NewItemRepository(db *gorm.DB) IItemRepository {
 	return &ItemRepository{db: db}
 }
+
