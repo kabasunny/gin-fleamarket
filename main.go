@@ -42,6 +42,7 @@ func main() {
 	itemRouter.DELETE("/:id", itemController.Delete)
 
 	authRouter.POST("/signup", authController.Signup)
+	authRouter.POST("/login", authController.Login)
 
 	//以下は、サーバーを立ち上げ（以降、リクエストの待機、レスポンス送信行う）
 	r.Run("localhost:8080")
