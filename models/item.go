@@ -10,4 +10,5 @@ type Item struct {
 	Price       uint `gorm:"not null"`
 	Description string
 	SoldOut     bool `gorm:"not null;default:false"` //複数の制約を使用する場合はセミコロンで区切る
+	UserID uint `gorm:"not null"`
 }

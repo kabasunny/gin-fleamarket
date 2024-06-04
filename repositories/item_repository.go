@@ -9,10 +9,10 @@ import (
 
 type IItemRepository interface {
 	FindAll() (*[]models.Item, error)
-	FindById(itemId uint) (*models.Item, error)
+	FindById(itemId uint, userId uint) (*models.Item, error)
 	Create(newItem models.Item) (*models.Item, error)
 	Update(updateItem models.Item) (*models.Item, error)
-	Delete(itemId uint) error
+	Delete(itemId uint, useId uint) error
 }
 
 type ItemMemoryRepository struct {
@@ -27,7 +27,7 @@ func (r *ItemMemoryRepository) FindAll() (*[]models.Item, error) {
 	return &r.items, nil
 }
 
-func (r *ItemMemoryRepository) FindById(itemId uint) (*models.Item, error) {
+func (r *ItemMemoryRepository) FindById(itemId uint, userId uint) (*models.Item, error) {
 	for _, v := range r.items {
 		if v.ID == itemId {
 			return &v, nil
@@ -54,7 +54,7 @@ func (r *ItemMemoryRepository) Update(updateItem models.Item) (*models.Item, err
 }
 
 
-func (r *ItemMemoryRepository) Delete(itemId uint) error{
+func (r *ItemMemoryRepository) Delete(itemId uint, useId uint) error{
 	for i, v := range r.items {
 		if v.ID == itemId {
 			r.items = append(r.items[:i], r.items[i+1:]... )//単純に削除する仕組みがない
@@ -77,8 +77,8 @@ func (r *ItemRepository) Create(newItem models.Item) (*models.Item, error) {
 	return &newItem, nil
 }
 
-func (r *ItemRepository) Delete(itemId uint) error {
-	deleteItem, err := r.FindById(itemId)
+func (r *ItemRepository) Delete(itemId uint, useId uint) error {
+	deleteItem, err := r.FindById(itemId, useId)
 	if err != nil{
 		return err
 	}
@@ -99,9 +99,10 @@ func (r *ItemRepository) FindAll() (*[]models.Item, error) {
 	return &items, nil
 }
 
-func (r *ItemRepository) FindById(itemId uint) (*models.Item, error) {
+func (r *ItemRepository) FindById(itemId uint, userId uint) (*models.Item, error) {
 	var item models.Item
-	result := r.db.First(&item, itemId)
+	result := r.db.First(&item, "id = ? AND user_id = ?",itemId, userId) // 条件に一致する最初のレコードを item に格納し、"id = ? AND user_id = ?" は、SQLクエリの条件部分で、? はプレースホルダ。
+	
 	if result.Error != nil {
 		if result.Error.Error() == "record not found" {
 			return nil, errors.New("Item not found")
