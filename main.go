@@ -3,6 +3,7 @@ package main
 import (
 	"gin-fleamarket/controllers"
 	"gin-fleamarket/infra"
+	"gin-fleamarket/middlewares"
 
 	// "gin-fleamarket/models"
 	"gin-fleamarket/repositories"
@@ -30,16 +31,18 @@ func main() {
 	authController := controllers.NewAuthController(authService)
 
 	r := gin.Default() //ginのデフォルトルータを初期化
+	// エンドポイントのグループ化
 	itemRouter := r.Group("/items")
+	itemRouterWithAuth := r.Group("/items", middlewares.AuthMiddleware(authService))
 	authRouter := r.Group("/auth")
 
 	//以下は、各リクエストにおける、エンドポイントとハンドラ関数の紐づけ設定を行っている
 	//ハンドラ関数は、実際にリクエストがあった際に発動する
 	itemRouter.GET("", itemController.FindAll)
-	itemRouter.GET("/:id", itemController.FindById)
-	itemRouter.POST("", itemController.Create)
-	itemRouter.PUT("/:id", itemController.Update)
-	itemRouter.DELETE("/:id", itemController.Delete)
+	itemRouterWithAuth.GET("/:id", itemController.FindById)
+	itemRouterWithAuth.POST("", itemController.Create)
+	itemRouterWithAuth.PUT("/:id", itemController.Update)
+	itemRouterWithAuth.DELETE("/:id", itemController.Delete)
 
 	authRouter.POST("/signup", authController.Signup)
 	authRouter.POST("/login", authController.Login)
