@@ -9,6 +9,7 @@ import (
 	"gin-fleamarket/repositories"
 	"gin-fleamarket/services"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,6 +33,9 @@ func main() {
 
 	r := gin.Default() //ginのデフォルトルータを初期化
 	// エンドポイントのグループ化
+	r.Use(cors.Default()) //CORS
+
+
 	itemRouter := r.Group("/items")
 	itemRouterWithAuth := r.Group("/items", middlewares.AuthMiddleware(authService))
 	authRouter := r.Group("/auth")
