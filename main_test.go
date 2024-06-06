@@ -148,3 +148,28 @@ func TestCreateUnauthorized(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	// IDの検証を削除
 }
+
+func TestSignup(t *testing.T) {
+	// テストのセットアップ
+	router := setup()
+
+	// リクエストボディの情報
+	createAuthInuput := dto.SignupInput{
+		Email:    "test3@example.com",
+		Password: "test3pass",
+	}
+	reqBody, _ := json.Marshal(createAuthInuput)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/auth/signup", bytes.NewBuffer(reqBody))
+
+	// APIリクエストの実行
+	router.ServeHTTP(w, req)
+
+	// APIの実行結果を取得
+	var res map[string]models.User
+	json.Unmarshal([]byte(w.Body.String()), &res)
+
+	// アサーション
+	assert.Equal(t, http.StatusCreated, w.Code)
+}
