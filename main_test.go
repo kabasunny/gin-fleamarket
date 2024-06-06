@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"gin-fleamarket/dto"
 	"gin-fleamarket/infra"
 	"gin-fleamarket/models"
+	"gin-fleamarket/services"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -23,11 +26,12 @@ func TestMain(m *testing.M) {
 		log.Fatalln("Error loading .env.test file")
 	}
 
-	code := m.Run() // mはテストランナーの制御を行うオブジェクト
+	code := m.Run() // テスト実行。mはテストランナーの制御を行うオブジェクト
 
-	os.Exit(code) // 今回後処理は特にないので、終了させる
+	os.Exit(code) // 終了。今回後処理は特にない
 }
 
+// テスト用データの作成
 func setupTestData(db *gorm.DB) {
 	items := []models.Item{
 		{Name: "テストアイテム1", Price: 1000, Description: "", SoldOut: false, UserID: 1},
@@ -48,6 +52,7 @@ func setupTestData(db *gorm.DB) {
 	}
 }
 
+// 各テストで呼び出すデータベース初期化関数
 func setup() *gin.Engine {
 	db := infra.SetupDB()
 	db.AutoMigrate(&models.Item{}, &models.User{})
@@ -78,4 +83,38 @@ func TestFindAll(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, 3, len(res["data"]))
 	// 第2引数は、期待する値。第3引数は実際の値。
+}
+
+// 認証が必要のためトークンが必要
+// 作成情報をリクエストボディにセットする
+func TestCreate(t *testing.T) {
+	// テストのセットアップ
+	router := setup()
+
+	// トークンの作成
+	token, err := services.CreateToken(1, "test1@example.com")
+	assert.Equal(t, nil, err)
+
+	// リクエストボディの情報
+	createItemInuput := dto.CreateItemInuput{
+		Name:        "テストアイテム4",
+		Price:       4000,
+		Description: "Createテスト",
+	}
+	reqBody, _ := json.Marshal(createItemInuput)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/items", bytes.NewBuffer(reqBody))
+	req.Header.Set("Authorization", "Bearer "+*token)
+
+	// APIリクエストの実行
+	router.ServeHTTP(w, req)
+
+	// APIの実行結果を取得
+	var res map[string]models.Item
+	json.Unmarshal([]byte(w.Body.String()), &res)
+
+	// アサーション
+	assert.Equal(t, http.StatusCreated, w.Code)
+	assert.Equal(t, uint(4), res["data"].ID)
 }
