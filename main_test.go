@@ -118,3 +118,33 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, w.Code)
 	assert.Equal(t, uint(4), res["data"].ID)
 }
+
+func TestCreateUnauthorized(t *testing.T) {
+	// テストのセットアップ
+	router := setup()
+
+	// トークンの生成処理の削除
+
+	// リクエストボディの情報
+	createItemInuput := dto.CreateItemInuput{
+		Name:        "テストアイテム4",
+		Price:       4000,
+		Description: "Createテスト",
+	}
+	reqBody, _ := json.Marshal(createItemInuput)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/items", bytes.NewBuffer(reqBody))
+	// トークンのセット処理を削除
+
+	// APIリクエストの実行
+	router.ServeHTTP(w, req)
+
+	// APIの実行結果を取得
+	var res map[string]models.Item
+	json.Unmarshal([]byte(w.Body.String()), &res)
+
+	// アサーション
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+	// IDの検証を削除
+}
