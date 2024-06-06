@@ -32,13 +32,13 @@ func (s *AuthService) Signup(email string, password string) error {
 		return err
 	}
 	user := models.User{
-		Email: email,
+		Email:    email,
 		Password: string(hashedPassword),
 	}
 	return s.repository.CreateUser(user)
 }
 
-func (s *AuthService) Login(email string, password string) (*string, error){
+func (s *AuthService) Login(email string, password string) (*string, error) {
 	foundUser, err := s.repository.FindUser(email)
 	if err != nil {
 		return nil, err
@@ -48,9 +48,9 @@ func (s *AuthService) Login(email string, password string) (*string, error){
 	if err != nil {
 		return nil, err
 	}
-	
+
 	token, err := CreateToken(foundUser.ID, foundUser.Email)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -59,38 +59,38 @@ func (s *AuthService) Login(email string, password string) (*string, error){
 
 func CreateToken(userId uint, email string) (*string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": userId,
+		"sub":   userId,
 		"email": email,
-		"exp": time.Now().Add(time.Hour).Unix(),
+		"exp":   time.Now().Add(time.Hour).Unix(),
 	}) // Unixタイムスタンプは、1970年1月1日のUTC午前0時0分0秒からの経過秒数を表すため、int64型では約292億年分の秒数をカバー
 	fmt.Printf("Token: %v\n", token) // 中間状態をコンソールで確認
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
 	if err != nil {
 		return nil, err
 	}
-	return &tokenString, nil	
+	return &tokenString, nil
 }
 
 func (s *AuthService) GetUserFromToken(tokenString string) (*models.User, error) {
- token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error){
-	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-		return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-	}
-	return []byte(os.Getenv("SECRET_KEY")), nil
- })
- if err != nil{
-	return nil, err
- }
- var user *models.User
- // claimsにJWTトークンのクレームはinterface{}型で格納される
- if claims, ok := token.Claims.(jwt.MapClaims); ok {
-	if float64(time.Now().Unix()) > claims["exp"].(float64) {
-		return nil, jwt.ErrTokenExpired
-	}
-	user, err = s.repository.FindUser(claims["email"].(string))
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(os.Getenv("SECRET_KEY")), nil
+	})
 	if err != nil {
 		return nil, err
 	}
- }
- return user, nil
+	var user *models.User
+	// claimsにJWTトークンのクレームはinterface{}型で格納される
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		if float64(time.Now().Unix()) > claims["exp"].(float64) {
+			return nil, jwt.ErrTokenExpired
+		}
+		user, err = s.repository.FindUser(claims["email"].(string))
+		if err != nil {
+			return nil, err
+		}
+	}
+	return user, nil
 }
